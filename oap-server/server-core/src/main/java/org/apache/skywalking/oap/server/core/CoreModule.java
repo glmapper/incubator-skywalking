@@ -29,7 +29,8 @@ import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
  * @author peng-yongsheng
@@ -38,8 +39,8 @@ public class CoreModule extends ModuleDefine {
 
     public static final String NAME = "core";
 
-    @Override public String name() {
-        return NAME;
+    public CoreModule() {
+        super(NAME);
     }
 
     @Override public Class[] services() {
@@ -64,6 +65,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(MetadataQueryService.class);
         classes.add(AggregationQueryService.class);
         classes.add(AlarmQueryService.class);
+        classes.add(TopNRecordsQueryService.class);
     }
 
     private void addServerInterface(List<Class> classes) {
@@ -73,6 +75,7 @@ public class CoreModule extends ModuleDefine {
 
     private void addInsideService(List<Class> classes) {
         classes.add(IModelGetter.class);
+        classes.add(IModelOverride.class);
         classes.add(StreamDataClassGetter.class);
         classes.add(RemoteClientManager.class);
         classes.add(RemoteSenderService.class);

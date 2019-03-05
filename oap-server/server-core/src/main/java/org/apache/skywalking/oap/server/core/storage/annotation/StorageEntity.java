@@ -31,5 +31,10 @@ public @interface StorageEntity {
 
     Class<? extends StorageBuilder> builder();
 
+    /**
+     * @return scope id.
+     */
+    int sourceScopeId();
+
     boolean deleteHistory() default true;
 }

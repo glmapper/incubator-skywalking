@@ -52,4 +52,13 @@ public class StorageEntityAnnotationUtils {
             throw new UnexpectedException("");
         }
     }
+
+    public static int getSourceScope(Class aClass) {
+        if (aClass.isAnnotationPresent(StorageEntity.class)) {
+            StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
+            return annotation.sourceScopeId();
+        } else {
+            throw new UnexpectedException("");
+        }
+    }
 }

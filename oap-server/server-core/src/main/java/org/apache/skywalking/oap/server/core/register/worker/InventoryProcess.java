@@ -21,8 +21,6 @@ package org.apache.skywalking.oap.server.core.register.worker;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.register.annotation.InventoryAnnotationUtils;
-import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
 import org.apache.skywalking.oap.server.core.worker.*;
@@ -42,11 +40,11 @@ public enum InventoryProcess {
 
     public void create(ModuleManager moduleManager, Class<? extends RegisterSource> inventoryClass) {
         String modelName = StorageEntityAnnotationUtils.getModelName(inventoryClass);
-        Scope scope = InventoryAnnotationUtils.getScope(inventoryClass);
+        int scopeId = StorageEntityAnnotationUtils.getSourceScope(inventoryClass);
 
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(inventoryClass);
 
-        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).getService(StorageDAO.class);
+        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IRegisterDAO registerDAO;
         try {
             registerDAO = storageDAO.newRegisterDao(builderClass.newInstance());
@@ -54,7 +52,7 @@ public enum InventoryProcess {
             throw new UnexpectedException("");
         }
 
-        RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName, moduleManager, registerDAO, scope);
+        RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName, moduleManager, registerDAO, scopeId);
         WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
 
         RegisterRemoteWorker remoteWorker = new RegisterRemoteWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager, persistentWorker);
@@ -64,5 +62,14 @@ public enum InventoryProcess {
         WorkerInstances.INSTANCES.put(distinctWorker.getWorkerId(), distinctWorker);
 
         entryWorkers.put(inventoryClass, distinctWorker);
+    }
+
+    /**
+     * @return all register sourceScopeId class types
+     */
+    public List<Class> getAllRegisterSources() {
+        List allSources = new ArrayList<>();
+        entryWorkers.keySet().forEach(allSources::add);
+        return allSources;
     }
 }

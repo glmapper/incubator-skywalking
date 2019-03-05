@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint;
 
 import lombok.*;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.source.*;
 
 /**
@@ -145,6 +146,9 @@ class SourceBuilder {
     }
 
     EndpointRelation toEndpointRelation() {
+        if (StringUtil.isEmpty(sourceEndpointName) || StringUtil.isEmpty(destEndpointName)) {
+            return null;
+        }
         EndpointRelation endpointRelation = new EndpointRelation();
         endpointRelation.setEndpointId(sourceEndpointId);
         endpointRelation.setEndpoint(sourceEndpointName);
@@ -166,5 +170,19 @@ class SourceBuilder {
         endpointRelation.setDetectPoint(detectPoint);
         endpointRelation.setTimeBucket(timeBucket);
         return endpointRelation;
+    }
+
+    DatabaseAccess toDatabaseAccess() {
+        if (!RequestType.DATABASE.equals(type)) {
+            return null;
+        }
+        DatabaseAccess databaseAccess = new DatabaseAccess();
+        databaseAccess.setId(destServiceId);
+        databaseAccess.setDatabaseTypeId(componentId);
+        databaseAccess.setLatency(latency);
+        databaseAccess.setName(destServiceName);
+        databaseAccess.setStatus(status);
+        databaseAccess.setTimeBucket(timeBucket);
+        return databaseAccess;
     }
 }
